@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import csv
 import os
-import glob
+
 
 # Función para parsear un solo archivo XML
 def parse_xml(file_path):
@@ -68,16 +68,10 @@ def extract_data_from_xml(root,tipo_doc):
             print("No se encontró el Receptor")
 
 
-
-
-        # Buscar el nodo <Receptor>
-        # Buscar el atributo TotalImpuestosTrasladados
         # Buscar todos los nodos <Traslado> y extraer el atributo Importe
         impuesto_traslados =""
         traslados = root.find("Impuestos//Traslados//Traslado" )
-        #total_impuestos = root.find('.//cfdi:Impuestos', namespaces={'cfdi': 'http://www.sat.gob.mx/cfd/3'})
 
-        #total_impuestos_trasladados = root.find('.//Impuestos').attrib['TotalImpuestosTrasladados']
         if traslados is None:
             traslados = root.find("cfdi:Impuestos//cfdi:Traslados//cfdi:Traslado"  , namespaces={'cfdi': 'http://www.sat.gob.mx/cfd/3'})
 
@@ -134,17 +128,6 @@ def process_multiple_xml_to_csv(xml_files, output_csv_path,tipo):
     save_to_csv(all_data, output_csv_path)  # Guardar todos los datos en un CSV
 
 
-# Función para obtener los archivos XML en un directorio
-
-##def get_xml_files(directory_path):
-    ##return glob.glob(os.path.join(directory_path, '*.xml'))
-
-# Ejemplo de uso
-
-##directory = 'CONTABILIDAD_FACTURAS'  # Ruta donde están los archivos XML
-##xml_files2 = get_xml_files(directory)
-##print(xml_files2)
-
 def save_URL_csv(data, output_csv_path):
     with open(output_csv_path, mode='a', newline='') as file:
         writer = csv.writer(file)
@@ -152,7 +135,6 @@ def save_URL_csv(data, output_csv_path):
             writer.writerow(['URLs'])  # Escribe las cabeceras
         for archivo in data:
             writer.writerow([archivo])  # Escribe cada archivo en una nueva fila
-
 
 
 def buscar_archivos(directorio, anioMes, sucursal, tipo, extension=None):
@@ -164,14 +146,13 @@ def buscar_archivos(directorio, anioMes, sucursal, tipo, extension=None):
             if extension is None or archivo.endswith(extension):
                 #print(f'Archivo encontrado: {os.path.join(raiz, archivo)}')
                 dataURL.append(os.path.join(raiz, archivo))
-                #save_to_csv(f'Archivo encontrado: {os.path.join(raiz, archivo)}', "CONTABILIDAD_FACTURAS/archivo_salida_rutas.csv")  # Guardar todos los datos en un CSV
                 
-    #print(dataURL)
+
     save_URL_csv(dataURL,directorio +"/"+ anioMes + "/urls" + anioMes + ".csv")
     csv_file = directorio +"/"+ anioMes + "/"+ anioMes +" - "+ tipo +" "+ sucursal +".csv"  # Ruta donde guardar el archivo CSV
     process_multiple_xml_to_csv(dataURL, csv_file, tipo)
-# Ejemplo de uso: buscar archivos .txt en una carpeta y subcarpetas
 
+# Ruta de carpeta o subcarpetas a escanear las rutas de los xml
 sucursal_sr = "San Rafael"
 directorio_sr = '//ve-bfc03/Doctos_Respaldo/Facts/2019'  
 
@@ -189,48 +170,3 @@ dir_anio_mes = '2019-01'  # Cambia esto a la ruta de tu carpeta
 tipo_doc = "Factura"
 buscar_archivos(directorio_my, dir_anio_mes, sucursal_my, tipo_doc, '.xml')  # Si quieres buscar por tipo de archivo
 
-
-
-def extraer_emisor(ruta_xml):
-    try:
-        # Parsear el archivo XML
-        tree = ET.parse(ruta_xml)
-        root = tree.getroot()
-
-        # Buscar el emisor usando el nombre de la etiqueta
-        emisor = root.find('.//Receptor')
-        emisor = root.find('.//Receptor')
-        if emisor is None:
-            # Encontrar el emisor
-            emisor = root.find('.//cfdi:Receptor', namespaces={'cfdi': 'http://www.sat.gob.mx/cfd/3'})
-
-        if emisor is not None:
-            nombre_emisor = emisor.get('Nombre')
-            rfc_emisor = emisor.get('Rfc')
-            regimen_fiscal = emisor.get('RegimenFiscal')
-
-            # Mostrar los resultados
-            print(f'Emisor encontrado en {ruta_xml}:')
-            print(f'  Nombre: {nombre_emisor}')
-            print(f'  RFC: {rfc_emisor}')
-            print(f'  Régimen Fiscal: {regimen_fiscal}')
-            print('-' * 50)
-        else:
-            print(f'No se encontró el emisor en {ruta_xml}.')
-            print('-' * 50)
-    except Exception as e:
-        print(f'Error al procesar el archivo {ruta_xml}: {e}')
-        print('-' * 50)
-
-
-# Iterar sobre cada ruta y procesar el archivo
-##for ruta in xml_files2:
-##    extraer_emisor(ruta)
-# Recorrer cada archivo en el array xml_files
-#for xml_f in xml_files2:
-#    print(f'Procesando el archivo: {xml_f}')
-#    csv_file = 'C:/Users/abel.cruz/Documents/CONTABILIDAD_FACTURAS/archivo_salida.csv'  # Ruta donde guardar el archivo CSV
-    #process_multiple_xml_to_csv(xml_f, csv_file)
-    # Aquí puedes agregar el código para procesar cada archivo
-    # Por ejemplo, podrías llamara una función como process_xml_to_csv(xml_file)
-    # process_xml_to_csv(xml_file)
